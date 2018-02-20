@@ -1,0 +1,39 @@
+﻿body {
+}
+.titleBar {
+    background-color:#00324f;
+    color:white;
+    height:50px;
+    margin-bottom:10px;
+}
+.title {
+    padding-top:7px;
+}
+.alignCenter {
+    text-align:center;
+}
+.alignLeft {
+    text-align:left;
+}
+.alignRight {
+    text-align:right;
+}
+.paddingLeftRignt5 {
+    padding-left:5px;
+    padding-right:5px;
+}
+.toppingBtn {
+    background-color: #26b3e2;
+    border: none;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    border-radius:4px;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2
+}

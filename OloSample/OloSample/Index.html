@@ -1,0 +1,139 @@
+﻿
+<link href="Content/Site.css" rel="stylesheet" />
+<!DOCTYPE html>
+<html>
+<head>
+    <title>OLO Pizza Toppings Guru</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <script type="text/javascript">
+        function GetCurrentYear() {
+            var now = new Date;
+            var theYear = now.getYear();
+            if (theYear < 1900)
+                theYear = theYear + 1900;
+            return theYear;
+        }
+    </script>
+
+    <div class="alignCenter titleBar">
+            <h1 class="title">Welcome to the OLO Pizza Toppings Guru</h1>
+    </div>
+    <div class="alignCenter">
+        <div style="padding-bottom:10px;padding-top:5px;">
+            Show me the top&nbsp;
+            <select id="topCountSelect">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20" selected="selected">20</option>
+                <option value="50">50</option>
+            </select>
+            &nbsp;topping combinations
+        </div>
+        <button type="button" class="toppingBtn" id="readToppingsBtn">Analyze Toppings</button>
+    </div>
+    <br/>
+    <div class="alignCenter">
+        <div id="rsltsLabel" style="font-weight:bold;"></div><br/>
+        <div id="toppingsResults" style="display:inline-flex;margin:0;"></div>
+    </div>
+    <p>&copy; <script language="JavaScript" type="text/javascript">
+        var now = new Date;
+        var theYear = now.getYear();
+        if (theYear < 1900)
+            theYear = theYear + 1900;
+        document.write(theYear)</script> - Stephen Mohler</p>
+    <script src="Scripts/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+
+        $(function () {
+            $('button#readToppingsBtn').click(function () {
+                var e = document.getElementById("topCountSelect");
+                var topCount = e.options[e.selectedIndex].value;
+
+                $.ajax({
+                    url: "http://files.olo.com/pizzas.json",
+                    cache: false,
+                    type: "GET",
+                    dataType: "json",
+                    success: function (data) {
+                        //alert("Success, we got the pizza data! There were " + data.length + " orders");
+                        var toppingCounts = [];
+                        for (var i = 0; i < data.length; i++) {
+                            var pizza = data[i];
+                            var toppings = pizza.toppings;
+                            var toppingsText = GetToppingsText(toppings);
+                            var pizza = GetPizza(toppingCounts, toppingsText);
+                            if (pizza) {
+                                pizza.count = pizza.count + 1;
+                            }
+                            else {
+                                toppingCounts.push({ text: toppingsText, count: 1 });
+                            }
+                        }
+                        //alert("Wow, we found " + toppingCounts.length + " different topping combinations!");
+
+                        toppingCounts.sort(ComparePizzasDescending);
+
+                        var rsltsHtml = "<table><thead><tr><th></th><th class=\"alignLeft\">Toppings</th><th>Order Count</th></tr></thead><tbody>";
+                        for (var i = 0; i < topCount; i++) {
+                            var pizza = toppingCounts[i];
+                            rsltsHtml = rsltsHtml + "<tr><td class=\"alignRight paddingLeftRignt5\">" + (i + 1) + "</td><td class=\"paddingLeftRignt5\">" + pizza.text + "</td><td class=\"alignRight\">" + FormatNumber(pizza.count) + "</td></tr>";
+                        }
+                        rsltsHtml = rsltsHtml + "</tbody></table>";
+
+                        $("#toppingsResults").html(rsltsHtml);
+                        $("#rsltsLabel").html("The Top " + topCount + " Most Popular Topping Combinations:");
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert("Oh No! Something went wrong.")
+                        debugger;
+                    }
+                });
+            });
+
+            function FormatNumber(num) {
+                var rgx = /(\d+)(\d{3})/;
+                var temp = num.toString();
+                return temp.replace(rgx, '$1' + ',' + '$2');
+            }
+
+            function GetPizza(pizzas, toppingText) {
+                for (var i = 0; i < pizzas.length; i++) {
+                    var tempPizza = pizzas[i];
+                    if (tempPizza.text == toppingText) {
+                        return tempPizza;
+                    }
+                }
+
+                return null;
+            }
+
+            function ComparePizzasDescending(a, b) {
+                if (a.count < b.count)
+                    return 1;
+                if (a.count > b.count)
+                    return -1;
+                return 0;
+            }
+
+            function GetToppingsText(toppings) {
+                toppings.sort();
+                var toppingsText = "";
+                for (var t = 0; t < toppings.length; t++) {
+                    var topping = toppings[t].toLowerCase();
+                    if (toppingsText.length > 0) {
+                        toppingsText = toppingsText + ", " + topping;
+                    }
+                    else {
+                        toppingsText = topping;
+                    }
+                }
+                return toppingsText;
+            }
+        })
+    </script>
+</body>
+</html>
